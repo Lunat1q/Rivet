@@ -1,6 +1,6 @@
 # Builds the Rivet installer: self-contained publish + Inno Setup -> artifacts\Rivet-Setup-<ver>.exe
 # Usage:  installer\build.ps1 [-Version 0.1.0]
-param([string] $Version = '0.2.1')
+param([string] $Version = '0.2.2')
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 

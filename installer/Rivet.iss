@@ -4,7 +4,7 @@
 
 #define MyAppName "Rivet"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.2.1"
+  #define MyAppVersion "0.2.2"
 #endif
 #define MyAppPublisher "Lunat1q"
 #define MyAppURL "https://github.com/Lunat1q/Rivet"
@@ -51,4 +51,7 @@ Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
+; No skipifsilent: the in-app updater installs with /VERYSILENT, and we want Rivet to relaunch
+; itself when that finishes so a silent update isn't left sitting closed. postinstall still shows
+; the "Launch Rivet" checkbox on the finished page for a normal interactive install.
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall

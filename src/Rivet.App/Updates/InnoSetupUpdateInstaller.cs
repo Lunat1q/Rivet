@@ -124,7 +124,8 @@ public sealed class InnoSetupUpdateInstaller : IUpdateInstaller
     /// <summary>
     /// Runs the Inno Setup installer and gets out of the way: it cannot replace Rivet.App.exe
     /// while it is running, so the app must exit. /VERYSILENT installs without prompting — the
-    /// user already agreed to this update.
+    /// user already agreed to this update. The installer's [Run] section relaunches Rivet once the
+    /// files are in place, so a silent update ends with the app back open, not silently closed.
     /// </summary>
     private static void Launch(string installerPath)
     {
