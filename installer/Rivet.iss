@@ -4,7 +4,7 @@
 
 #define MyAppName "Rivet"
 #ifndef MyAppVersion
-  #define MyAppVersion "0.2.0"
+  #define MyAppVersion "0.2.1"
 #endif
 #define MyAppPublisher "Lunat1q"
 #define MyAppURL "https://github.com/Lunat1q/Rivet"

@@ -103,9 +103,7 @@ public sealed partial class MainViewModel : ObservableObject
     public void SetInputVideo(string path)
     {
         InputPath = path;
-        var dir = Path.GetDirectoryName(path) ?? ".";
-        var name = Path.GetFileNameWithoutExtension(path);
-        OutputPath = Path.Combine(dir, $"{name}-captioned.mp4");
+        OutputPath = OutputNaming.CaptionedPath(path);
         ErrorMessage = null;
         IsDone = false;
         IsEditing = false;
@@ -150,6 +148,11 @@ public sealed partial class MainViewModel : ObservableObject
 
         Begin();
         IsDone = false;
+
+        // Never clobber an earlier render: clip-captioned.mp4, then _v2, _v3, … Version off the
+        // input (not the last output) so re-renders don't stack _v2_v2, and monotonically so a
+        // deleted _v2 is not reused.
+        OutputPath = OutputNaming.NextVersionedPath(OutputNaming.CaptionedPath(InputPath!));
 
         try
         {
