@@ -64,6 +64,10 @@
                        Foreground="{DynamicResource Text}" FontSize="13" />
         </Border>
 
+        <!-- One fill child for the DockPanel; the two views toggle by IsVisible. Without this the
+             setup view (not the last child) would be docked left instead of filling. -->
+        <Grid>
+
         <!-- ================= SETUP ================= -->
         <ScrollViewer IsVisible="{Binding !IsEditing}">
             <Border Classes="card" MaxWidth="560" HorizontalAlignment="Center" Margin="0,4,0,0">
@@ -240,6 +244,8 @@
                     </Border>
                 </StackPanel>
             </Border>
+        </Grid>
+
         </Grid>
     </DockPanel>
 </Window>
