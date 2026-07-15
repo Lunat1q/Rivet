@@ -1,0 +1,205 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Rivet.App.ViewModels"
+        x:Class="Rivet.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Rivet"
+        Width="1020" Height="820" MinWidth="720" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Bg}">
+
+    <DockPanel Margin="20">
+
+        <!-- Header -->
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10"
+                    Margin="2,0,2,14" VerticalAlignment="Center">
+            <TextBlock Text="Rivet" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Text}" />
+            <TextBlock Text="automatic viral captions — transcribe, tweak, burn in. On this machine."
+                       Classes="meta" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <Border DockPanel.Dock="Top" Classes="banner" Margin="0,0,0,12" Background="#2C1618"
+                IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap"
+                       Foreground="{DynamicResource Text}" FontSize="13" />
+        </Border>
+
+        <!-- ================= SETUP ================= -->
+        <ScrollViewer IsVisible="{Binding !IsEditing}">
+            <Border Classes="card" MaxWidth="560" Margin="0,4,0,0">
+                <StackPanel Spacing="20">
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Classes="step" Text="1 · Your video" />
+                        <Border Classes="dropzone">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="{Binding InputPath, FallbackValue='No video chosen yet'}"
+                                               Foreground="{DynamicResource Text}" FontSize="13"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Classes="meta" Text="MP4, MOV, MKV, WebM — anything ffmpeg reads." />
+                                </StackPanel>
+                                <Button Grid.Column="1" Classes="quiet" Content="Choose video…"
+                                        Click="OnChooseVideoClick" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Spacing="12">
+                        <TextBlock Classes="step" Text="2 · Speech recognition" />
+                        <Grid ColumnDefinitions="*,14,*">
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Classes="label" Text="QUALITY" />
+                                <ComboBox ItemsSource="{Binding Qualities}" SelectedItem="{Binding Quality}" />
+                                <TextBlock Classes="hint" Text="{Binding Quality.Detail}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Classes="label" Text="PROCESSOR" />
+                                <ComboBox ItemsSource="{Binding Processings}" SelectedItem="{Binding Processing}" />
+                                <TextBlock Classes="hint" Text="{Binding Processing.Detail}" />
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel>
+                            <CheckBox Content="Isolate vocals before transcribing" IsChecked="{Binding IsolateVocals}" />
+                            <TextBlock Classes="hint" Margin="28,0,0,0"
+                                       Text="Strips music/noise with Demucs so speech is recognised more accurately. Much slower, and needs Demucs installed. Leave off for clean speech." />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Classes="primary" Content="Transcribe" Command="{Binding TranscribeCommand}" />
+                        <Button Classes="quiet" Content="Cancel" Command="{Binding CancelCommand}"
+                                IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="8" IsVisible="{Binding IsBusy}">
+                        <TextBlock Text="{Binding StatusLine}" Foreground="{DynamicResource Text}" FontSize="13" />
+                        <ProgressBar Value="{Binding Progress}" Maximum="100" Height="6"
+                                     Foreground="{DynamicResource Accent}"
+                                     Background="{DynamicResource SurfaceRaised}" CornerRadius="3" />
+                    </StackPanel>
+                    <TextBlock Classes="meta" Text="{Binding StatusLine}" IsVisible="{Binding !IsBusy}" />
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <!-- ================= EDITOR ================= -->
+        <Grid IsVisible="{Binding IsEditing}" ColumnDefinitions="340,16,*" RowDefinitions="*,Auto">
+
+            <!-- Words -->
+            <Border Grid.Column="0" Grid.Row="0" Classes="card" Padding="14">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Classes="step" Text="Transcript" Margin="0,0,0,4" />
+                    <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,10"
+                               Text="Fix any wrong words. Start/End are seconds — nudge them to realign the highlight." />
+                    <Grid DockPanel.Dock="Top" ColumnDefinitions="56,56,*" Margin="0,0,0,6">
+                        <TextBlock Grid.Column="0" Classes="meta" Text="START" />
+                        <TextBlock Grid.Column="1" Classes="meta" Text="END" />
+                        <TextBlock Grid.Column="2" Classes="meta" Text="WORD" Margin="6,0,0,0" />
+                    </Grid>
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding Words}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:WordViewModel">
+                                    <Grid ColumnDefinitions="56,56,*" Margin="0,2">
+                                        <TextBox Grid.Column="0" Text="{Binding Start, StringFormat='0.00'}"
+                                                 FontSize="12" Padding="4,3" Margin="0,0,4,0" />
+                                        <TextBox Grid.Column="1" Text="{Binding End, StringFormat='0.00'}"
+                                                 FontSize="12" Padding="4,3" Margin="0,0,4,0" />
+                                        <TextBox Grid.Column="2" Text="{Binding Text}" FontSize="13" Padding="6,3" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- Preview + style -->
+            <ScrollViewer Grid.Column="2" Grid.Row="0">
+                <StackPanel Spacing="14">
+                    <Border Classes="card" Padding="10">
+                        <StackPanel Spacing="10">
+                            <Image Source="{Binding PreviewImage}" Stretch="Uniform" MaxHeight="360"
+                                   HorizontalAlignment="Center" />
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Slider Grid.Column="0" Minimum="0" Maximum="{Binding VideoDuration}"
+                                        Value="{Binding PreviewTime}" VerticalAlignment="Center" />
+                                <Button Grid.Column="1" Classes="quiet" Content="Update preview"
+                                        Command="{Binding RefreshPreviewCommand}" VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Classes="meta" HorizontalAlignment="Center"
+                                       Text="{Binding PreviewTime, StringFormat='preview at {0:0.00}s — apply text edits with Update preview'}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="card">
+                        <StackPanel Spacing="12">
+                            <TextBlock Classes="step" Text="Caption style" />
+                            <Grid ColumnDefinitions="*,14,*">
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Classes="label" Text="FONT" />
+                                    <ComboBox ItemsSource="{Binding Fonts}" SelectedItem="{Binding Font}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Classes="label" Text="POSITION" />
+                                    <ComboBox ItemsSource="{Binding Positions}" SelectedItem="{Binding Position}" />
+                                </StackPanel>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,14,*">
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Classes="label" Text="TEXT COLOUR" />
+                                    <ComboBox ItemsSource="{Binding PrimaryColors}" SelectedItem="{Binding PrimaryColor}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Classes="label" Text="ACTIVE WORD" />
+                                    <ComboBox ItemsSource="{Binding HighlightColors}" SelectedItem="{Binding HighlightColor}" />
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel>
+                                <TextBlock Classes="label" Text="{Binding FontSizePercent, StringFormat='SIZE · {0:0.0}% of height'}" />
+                                <Slider Minimum="4" Maximum="12" Value="{Binding FontSizePercent}"
+                                        TickFrequency="0.5" IsSnapToTickEnabled="True" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Classes="label" Text="{Binding WordsPerCaption, StringFormat='WORDS ON SCREEN · {0}'}" />
+                                <Slider Minimum="1" Maximum="5" Value="{Binding WordsPerCaption}"
+                                        TickFrequency="1" IsSnapToTickEnabled="True" />
+                            </StackPanel>
+                            <CheckBox Content="UPPERCASE" IsChecked="{Binding Uppercase}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Actions -->
+            <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Margin="0,14,0,0">
+                <StackPanel Spacing="10">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Classes="primary" Content="Render captions" Command="{Binding RenderCommand}" />
+                        <Button Classes="quiet" Content="Cancel" Command="{Binding CancelCommand}"
+                                IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
+                        <Button Classes="quiet" Content="← Start over" Command="{Binding ResetCommand}"
+                                IsVisible="{Binding !IsBusy}" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="8" IsVisible="{Binding IsBusy}">
+                        <TextBlock Text="{Binding StatusLine}" Foreground="{DynamicResource Text}" FontSize="13" />
+                        <ProgressBar Value="{Binding Progress}" Maximum="100" Height="6"
+                                     Foreground="{DynamicResource Accent}"
+                                     Background="{DynamicResource SurfaceRaised}" CornerRadius="3" />
+                    </StackPanel>
+
+                    <Border Classes="banner" Background="{DynamicResource AccentSoft}" IsVisible="{Binding IsDone}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="{Binding StatusLine}" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource Text}" FontSize="13" TextWrapping="Wrap" />
+                            <Button Grid.Column="1" Classes="quiet" Content="Show file"
+                                    Command="{Binding OpenOutputFolderCommand}" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Rivet.Core/Rivet.Core.csproj" />
+    <Project Path="src/Rivet.App/Rivet.App.csproj" />
+  </Folder>
+</Solution>

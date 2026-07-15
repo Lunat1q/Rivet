@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <!-- One version for the packages and the native files we embed from them. -->
+    <WhisperVersion>1.9.1</WhisperVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Managed binding over ggml-org/whisper.cpp; Runtime ships the native whisper.cpp libs -->
+    <PackageReference Include="Whisper.net" Version="$(WhisperVersion)" />
+    <PackageReference Include="Whisper.net.Runtime" Version="$(WhisperVersion)" />
+    <!-- GPU backend. Vulkan, not CUDA (ADR 0001): the CUDA build hard-crashes on recent cards,
+         and Vulkan covers NVIDIA + AMD + Intel from one package. Worth ~65x over CPU. -->
+    <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="$(WhisperVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>
