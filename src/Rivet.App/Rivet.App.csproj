@@ -9,7 +9,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <RootNamespace>Rivet.App</RootNamespace>
-    <Version>0.1.0</Version>
+    <ApplicationIcon>Assets\rivet.ico</ApplicationIcon>
+    <Version>0.2.0</Version>
     <Product>Rivet</Product>
   </PropertyGroup>
 

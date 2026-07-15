@@ -4,6 +4,7 @@
         x:Class="Rivet.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="Rivet"
+        Icon="/Assets/rivet.ico"
         Width="1020" Height="820" MinWidth="720" MinHeight="600"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource Bg}">
@@ -14,9 +15,48 @@
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10"
                     Margin="2,0,2,14" VerticalAlignment="Center">
             <TextBlock Text="Rivet" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Text}" />
+            <!-- Which version this actually is: the only way to tell an update landed. -->
+            <Border Background="{DynamicResource SurfaceRaised}" CornerRadius="999" Padding="7,2"
+                    VerticalAlignment="Center">
+                <TextBlock Text="{Binding Version, StringFormat='v{0}'}" Classes="meta"
+                           ToolTip.Tip="The installed version of Rivet" />
+            </Border>
             <TextBlock Text="automatic viral captions — transcribe, tweak, burn in. On this machine."
                        Classes="meta" VerticalAlignment="Center" />
         </StackPanel>
+
+        <!-- An update offer, never a demand. Hidden while a job runs: installing quits the app. -->
+        <Border DockPanel.Dock="Top" Classes="banner" Margin="0,0,0,12"
+                Background="{DynamicResource AccentSoft}" IsVisible="{Binding CanOfferUpdate}">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Update.Headline}" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Text}" />
+                    <TextBlock Classes="hint" Text="Rivet will close, install, and you can reopen it." />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                    <Button Classes="primary" Content="Update now" Command="{Binding Update.InstallCommand}" />
+                    <Button Classes="quiet" Content="Not now" Command="{Binding Update.DismissCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Downloading it. -->
+        <Border DockPanel.Dock="Top" Classes="banner" Margin="0,0,0,12"
+                Background="{DynamicResource AccentSoft}" IsVisible="{Binding Update.IsInstalling}">
+            <StackPanel Spacing="8">
+                <TextBlock Text="Downloading the update…" FontSize="13" Foreground="{DynamicResource Text}" />
+                <ProgressBar Value="{Binding Update.DownloadPercent}" Maximum="100" Height="5"
+                             Foreground="{DynamicResource Accent}"
+                             Background="{DynamicResource SurfaceRaised}" CornerRadius="3" />
+            </StackPanel>
+        </Border>
+
+        <Border DockPanel.Dock="Top" Classes="banner" Margin="0,0,0,12" Background="#2C1618"
+                IsVisible="{Binding Update.Error, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Text="{Binding Update.Error}" TextWrapping="Wrap"
+                       Foreground="{DynamicResource Text}" FontSize="13" />
+        </Border>
 
         <Border DockPanel.Dock="Top" Classes="banner" Margin="0,0,0,12" Background="#2C1618"
                 IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
@@ -26,7 +66,7 @@
 
         <!-- ================= SETUP ================= -->
         <ScrollViewer IsVisible="{Binding !IsEditing}">
-            <Border Classes="card" MaxWidth="560" Margin="0,4,0,0">
+            <Border Classes="card" MaxWidth="560" HorizontalAlignment="Center" Margin="0,4,0,0">
                 <StackPanel Spacing="20">
 
                     <StackPanel Spacing="8">

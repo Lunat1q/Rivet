@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Rivet.App.Updates;
 using Rivet.App.ViewModels;
 using Rivet.Core.Abstractions;
 using Rivet.Core.Media.Demucs;
@@ -40,6 +41,12 @@ public static class ServiceRegistration
         services.AddSingleton<SubtitlePipeline>();
 
         services.AddSingleton<IUserSettingsStore, JsonUserSettingsStore>();
+
+        // Updates: GitHub Releases is the feed, the Inno Setup .exe is the payload.
+        services.AddSingleton<IUpdateChecker, GitHubUpdateChecker>();
+        services.AddSingleton<IUpdateInstaller, InnoSetupUpdateInstaller>();
+        services.AddSingleton<UpdateViewModel>();
+
         services.AddSingleton<MainViewModel>();
 
         return services.BuildServiceProvider();

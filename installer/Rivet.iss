@@ -3,7 +3,9 @@
 ; (expects a self-contained publish in ..\publish — see installer\build.ps1)
 
 #define MyAppName "Rivet"
-#define MyAppVersion "0.1.0"
+#ifndef MyAppVersion
+  #define MyAppVersion "0.2.0"
+#endif
 #define MyAppPublisher "Lunat1q"
 #define MyAppURL "https://github.com/Lunat1q/Rivet"
 #define MyAppExeName "Rivet.App.exe"
@@ -27,6 +29,7 @@ WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayName={#MyAppName} {#MyAppVersion}
+SetupIconFile=..\src\Rivet.App\Assets\rivet.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

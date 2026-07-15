@@ -32,17 +32,31 @@ public sealed partial class MainViewModel : ObservableObject
         SubtitlePipeline pipeline,
         IMediaProcessor media,
         ITranscriptionBackend backend,
-        IUserSettingsStore settingsStore)
+        IUserSettingsStore settingsStore,
+        UpdateViewModel update)
     {
         _pipeline = pipeline;
         _media = media;
         _backend = backend;
         _settingsStore = settingsStore;
+        Update = update;
         Restore(settingsStore.Load());
 
         ModelDownloadProgress = new Progress<double>(f =>
             StatusLine = f >= 1 ? "Loading model…" : $"Downloading speech model… {f:P0}");
+
+        // Re-evaluate the offer as the update state and busy state change (installing quits the app).
+        Update.PropertyChanged += (_, _) => OnPropertyChanged(nameof(CanOfferUpdate));
+        _ = Update.CheckInBackgroundAsync();
     }
+
+    /// <summary>The installed version, shown in the header.</summary>
+    public string Version => AppVersion.Current;
+
+    public UpdateViewModel Update { get; }
+
+    /// <summary>Offer an update only when idle — installing closes the app, so never mid-job.</summary>
+    public bool CanOfferUpdate => Update.IsOffered && !IsBusy;
 
     // Options
     public IReadOnlyList<Choice<WhisperModel>> Qualities => Choices.Qualities;
@@ -226,6 +240,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         TranscribeCommand.NotifyCanExecuteChanged();
         RenderCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanOfferUpdate));
     }
 
     partial void OnIsEditingChanged(bool value) => RenderCommand.NotifyCanExecuteChanged();
