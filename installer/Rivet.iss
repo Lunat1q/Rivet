@@ -40,7 +40,10 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 [Files]
 ; The whole self-contained publish, minus the native runtimes for other operating systems
 ; (Whisper.net ships every RID; on Windows only win-x64 is used) and debug symbols.
-Source: "..\publish\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs; \
+; ignoreversion: overwrite every file, even one whose assembly version matches the installed
+; copy. Without it Inno keeps the old file when only XAML/resources changed but the version did
+; not — a same-version reinstall would ship stale UI.
+Source: "..\publish\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion; \
     Excludes: "*\linux-x64\*,*\linux-arm64\*,*\linux-arm\*,*\osx-x64\*,*\osx-arm64\*,*\android*,*\ios*,*.pdb"
 
 [Icons]
