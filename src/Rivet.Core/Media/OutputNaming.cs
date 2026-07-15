@@ -29,14 +29,14 @@ public static class OutputNaming
     public static string NextVersionedPath(string basePath)
     {
         var dir = Path.GetDirectoryName(basePath);
-        IEnumerable<string> existing = Directory.Exists(dir)
-            ? Directory.EnumerateFiles(dir).Select(Path.GetFileName)!
+        IEnumerable<string?> existing = Directory.Exists(dir)
+            ? Directory.EnumerateFiles(dir).Select(Path.GetFileName)
             : [];
         return NextVersionedPath(basePath, existing);
     }
 
     // The pure core, so the version arithmetic is unit-testable without touching the disk.
-    internal static string NextVersionedPath(string basePath, IEnumerable<string> existingFileNames)
+    internal static string NextVersionedPath(string basePath, IEnumerable<string?> existingFileNames)
     {
         var dir = Path.GetDirectoryName(basePath) ?? ".";
         var name = Path.GetFileNameWithoutExtension(basePath);
